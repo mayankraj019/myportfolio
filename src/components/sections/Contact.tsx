@@ -22,12 +22,27 @@ export default function Contact() {
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    // Simulate sending
-    await new Promise((r) => setTimeout(r, 1200));
-    console.log("Contact form:", data);
-    setSent(true);
-    reset();
-    setTimeout(() => setSent(false), 4000);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.error || "Failed to send message");
+      }
+
+      setSent(true);
+      reset();
+      setTimeout(() => setSent(false), 5000);
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      alert(error.message || "Something went wrong. Please try again or contact me directly.");
+    }
   };
 
   const contactDetails = [
